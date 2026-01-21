@@ -1,4 +1,4 @@
-package OOPS_Principles;
+package oops;
 
 interface Vehicle {
     void move();
