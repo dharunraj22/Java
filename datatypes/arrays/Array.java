@@ -1,7 +1,7 @@
 package datatypes.arrays;
 import java.util.Scanner;
 
-import datatypes.Strings;
+import datatypes.strings.Strings;
 
 public class Array {
 
