@@ -19,7 +19,7 @@ public class StringUtility {
         }
         int len = str.length();
         for (int i=0; i<len/2; i++) {
-            if (str.charAt(i) != str.charAt(len-i-1)) {
+            if (Character.toLowerCase(str.charAt(i)) != Character.toLowerCase(str.charAt(len-i-1))) {
                 return false;
             }
         }
