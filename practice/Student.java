@@ -32,7 +32,7 @@ public class Student {
     }
 
     public void setName(String name) {
-        if (name == null || name.isBlank()) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Name cannot be null or empty");
         }
         this.name = name;
