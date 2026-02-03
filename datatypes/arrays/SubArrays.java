@@ -1,4 +1,6 @@
 package datatypes.arrays;
+import java.util.Map;
+import java.util.HashMap;
 
 public class SubArrays {
     
@@ -35,6 +37,24 @@ public class SubArrays {
                     break;
                 }
             }
+        }
+        return result;
+    }
+
+    public static int longestSubarrayWithUnique(String s) {
+        if (s==null) {
+            throw new IllegalArgumentException("String cannot be null");
+        }
+        Map<Character, Integer> freq = new HashMap<>();
+        int left=0, result=0;
+        for (int right=0; right<s.length(); right++) {
+            char curr = s.charAt(right);
+            if (!freq.containsKey(curr) || freq.get(curr) < left) {
+                result = Math.max(result, right-left+1);
+            }else {
+                left = freq.get(curr)+1;
+            }
+            freq.put(curr, right);
         }
         return result;
     }
