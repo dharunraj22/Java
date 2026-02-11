@@ -1,50 +1,56 @@
 package practice;
 
-public class BankAccount {
-    
-    private static final int MAX_AMOUNT=10000;
+import java.util.concurrent.atomic.AtomicInteger;
 
-    private final String accountNumber;
-    private final String holderName;
-    private int balance;
+public final class BankAccount {
 
-    public BankAccount(String accountNumber, String holderName, int balance) {
-        if (accountNumber == null || accountNumber.isEmpty()) {
+    private final String accountNumber; // immutable
+    private final String holderName;    // immutable
+    private final AtomicInteger balance; // thread-safe
+
+    private static final int MAX_AMOUNT = 10000;
+
+    public BankAccount(String accountNumber, String holderName, int initialBalance) {
+        if (accountNumber == null || accountNumber.isEmpty())
             throw new IllegalArgumentException("Account number cannot be null or empty");
-        }
-        if (holderName == null || holderName.isEmpty()) {
-            throw new IllegalArgumentException("Account holder name cannot be null or empty");
-        }
-        if (balance < 0) {
-            throw new IllegalArgumentException("Initial balance cannot be empty");
-        }
+        if (holderName == null || holderName.isEmpty())
+            throw new IllegalArgumentException("Holder name cannot be null or empty");
+        if (initialBalance < 0 || initialBalance > MAX_AMOUNT)
+            throw new IllegalArgumentException("Initial balance must be between 0 and " + MAX_AMOUNT);
+
         this.accountNumber = accountNumber;
         this.holderName = holderName;
-        this.balance = balance;
+        this.balance = new AtomicInteger(initialBalance);
     }
 
     public int getBalance() {
-        return balance;
+        return balance.get(); // atomic, always up-to-date
     }
 
     public void deposit(int amount) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Deposit amount should be positive");
-        }
-        if (this.balance + amount > MAX_AMOUNT) {
-            System.out.println();
-            throw new IllegalArgumentException("Balance will exceed the maximum amount of " + MAX_AMOUNT);
-        }
-        this.balance += amount;
+        if (amount <= 0) throw new IllegalArgumentException("Deposit must be positive");
+
+        balance.updateAndGet(curr -> {
+            if (curr + amount > MAX_AMOUNT)
+                throw new IllegalArgumentException("Balance cannot exceed " + MAX_AMOUNT);
+            return curr + amount;
+        });
     }
 
     public void withdraw(int amount) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Cannot withdraw a negative amount");
-        }
-        if (this.balance - amount < 0) {
-            throw new IllegalArgumentException("Insufficient balance");
-        }
-        this.balance -= amount;
+        if (amount <= 0) throw new IllegalArgumentException("Withdrawal must be positive");
+
+        balance.updateAndGet(curr -> {
+            if (curr - amount < 0)
+                throw new IllegalArgumentException("Insufficient balance");
+            return curr - amount;
+        });
+    }
+
+    @Override
+    public String toString() {
+        String maskedAcc = "*****" + accountNumber.substring(Math.max(0, accountNumber.length() - 4));
+        return String.format("Account Number: %s%nHolder Name: %s%nAvailable Balance: %d",
+                             maskedAcc, holderName, balance.get());
     }
 }
